@@ -57,8 +57,8 @@ class Line:
 
         y_df.loc[self.bus1, self.bus1] = (1/2)*y_sh + y_se
         y_df.loc[self.bus2, self.bus2] = (1/2)*y_sh + y_se
-        y_df.loc[self.bus1, self.bus2] = -((1/2)*y_sh + y_se + (1/2)*y_sh)
-        y_df.loc[self.bus2, self.bus1] = -((1/2)*y_sh + y_se + (1/2)*y_sh)
+        y_df.loc[self.bus1, self.bus2] = -y_se
+        y_df.loc[self.bus2, self.bus1] = -y_se
 
         self.y = y_df
 
