@@ -21,6 +21,12 @@ class Solution:
                     self.y_matrix[index_row, index_col] = self.y_matrix[index_row, index_col] + element.y.loc[row, col]
 
     def print_y_matrix(self):
-        for i in range(7):
-            print("y_bus row", i+1, "= ", self.y_matrix[i])
-            print('\n')
+        print("Y-bus matrix:")
+        i = 0
+        while i < len(self.system.buses):
+            j = 0
+            print("\nRow " + str(i + 1))
+            while j < len(self.system.buses):
+                print(self.y_matrix[i][j])
+                j += 1
+            i = i + 1

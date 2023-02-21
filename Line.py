@@ -5,26 +5,43 @@ import pandas as pd
 
 class Line:
 
-    ep = 8.854e-12 * 1609
+    ep = 8.854e-12
+    f = 60  # Hz
 
-    def __init__(self, name, bus1, bus2, length, f, rad, gmr, d, resistance, num_cond, d_ab, d_bc, d_ca):
+    def __init__(self, name: str, codeword: str, bus1, bus2, length, d, num_cond,
+                 axaxis, ayaxis, bxaxis, byaxis, cxaxis, cyaxis, vbase):
+
         self.name = name
+        self.codeword = codeword
         self.bus1 = bus1
         self.bus2 = bus2
         self.length = length
-        self.f = f
-        self.rad = rad
-        self.gmr = gmr
         self.d = d
-        self.resistance = resistance
         self.num_cond = num_cond
-        self.d_ab = d_ab
-        self.d_bc = d_bc
-        self.d_ca = d_ca
-
+        self.axaxis = axaxis
+        self.ayaxis = ayaxis
+        self.bxaxis = bxaxis
+        self.byaxis = byaxis
+        self.cxaxis = cxaxis
+        self.cyaxis = cyaxis
+        self.vbase = vbase
         self.buses = [self.bus1, self.bus2]
 
     def calc_y(self):
+
+        s_base = 100    # MVA
+        z_base = self.vbase**2/s_base
+
+        d_ab = ((self.axaxis - self.bxaxis) ** 2 - (self.ayaxis - self.byaxis) ** 2) ** (1 / 2)
+        d_bc = ((self.bxaxis - self.cxaxis) ** 2 - (self.byaxis - self.cyaxis) ** 2) ** (1 / 2)
+        d_ca = ((self.cxaxis - self.axaxis) ** 2 - (self.cyaxis - self.ayaxis) ** 2) ** (1 / 2)
+        d_eq = np.cbrt(d_ab*d_bc*d_ca)
+
+        if self.codeword == "Partridge":
+            self.gmr = 0.0217    # ft
+            self.rad = 0.02675  # ft
+            self.resistance = 0.385   # Ohm/mi
+
         if self.num_cond == 1:
             d_sl = self.gmr
             d_sc = self.rad
@@ -42,15 +59,13 @@ class Line:
             d_sc = 1.0941*np.power(4, 1/(self.rad*self.d**3))
             r = (self.resistance*self.length)/4
 
-        d_eq = np.cbrt(self.d_ab*self.d_bc*self.d_ca)
-
-        l = 2e-7*math.log(d_eq/d_sl)*1609*self.length
-        x = 2*math.pi*self.f*l
-        z = r + 1j*x
+        ind = 2e-7*math.log(d_eq/d_sl)*1609.344*self.length
+        x = 2*math.pi*Line.f*ind
+        z = (r + 1j*x)/z_base
         y_se = 1/z
 
-        c = (2*math.pi*Line.ep*self.length)/math.log(d_eq/d_sc)
-        b = 2*math.pi*self.f*c
+        c = (2*math.pi*Line.ep*self.length*1609.344)/math.log(d_eq/d_sc)
+        b = 2*math.pi*Line.f*c*z_base
         y_sh = 1j*b
 
         y_df = pd.DataFrame()

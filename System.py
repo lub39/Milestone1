@@ -24,25 +24,33 @@ class System:
             self.buses[bus] = Bus(bus)
             self.buses_order.append(bus)
 
-    def add_line_element(self, name, bus1, bus2, length, f, rad, gmr, d, resistance, num_cond, d_ab, d_bc, d_ca):
-        self.lines[name] = Line(name, bus1, bus2, length, f, rad, gmr, d, resistance, num_cond, d_ab, d_bc, d_ca)
-        self.lines[name].calc_y()
-        self.__add_bus(bus1)
-        self.__add_bus(bus2)
+    def add_transformer_element(self, name, bus1, bus2, p_rate, v1_rate, v2_rate, z_pct, xr_ratio):
 
-        self.y_elements[name] = self.lines[name]
-
-    def add_transformer_element(self, name, bus1, bus2, s_base, p_rate, z_pct, xr_ratio):
-        self.transformers[name] = Transformer(name, bus1, bus2, s_base, p_rate, z_pct, xr_ratio)
+        self.transformers[name] = Transformer(name, bus1, bus2, p_rate, v1_rate, v2_rate, z_pct, xr_ratio)
         self.transformers[name].calc_y()
         self.__add_bus(bus1)
         self.__add_bus(bus2)
 
         self.y_elements[name] = self.transformers[name]
 
+    def add_line_element(self, name: str, codeword: str, bus1, bus2, length, d, num_cond,
+                 axaxis, ayaxis, bxaxis, byaxis, cxaxis, cyaxis):
+
+        vbase = self.transformers[list(self.transformers.keys())[0]].v2_rate
+
+        self.lines[name] = Line(name, codeword, bus1, bus2, length, d, num_cond,
+                 axaxis, ayaxis, bxaxis, byaxis, cxaxis, cyaxis, vbase)
+        self.lines[name].calc_y()
+        self.__add_bus(bus1)
+        self.__add_bus(bus2)
+
+        self.y_elements[name] = self.lines[name]
     def add_generator_element(self, name, bus1, p_rate):
         self.generators = Generator(name, bus1, p_rate)
         self.__add_bus(bus1)
+
+
+
 
 
 
