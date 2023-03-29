@@ -7,11 +7,12 @@ class Solution:
     def __init__(self, system: System):
         self.system = system
 
+
     def build_y_matrix(self):
         self.y_matrix = np.zeros((len(self.system.buses), len(self.system.buses)), dtype='complex')
         self.bus_order = list()
 
-        for element_name, element in self.system.y_elements.items():
+        for element_name, element in self.system.y_matrix.items():
 
             for row in element.buses:
                 for col in element.buses:
